@@ -1,13 +1,17 @@
 import { Router } from "express";
 import {
-  obtenerProductos,
-  crearProducto,
-  ActualizarNuevoProducto,
-  EliminarProductos,
+  obtenerAutores,
+  crearAutor,
+  ActualizarNuevoAutor,
+  EliminarAutores,
+  obtenerLibros,
 } from "../controller/ProductController.js";
 const router = Router();
-router.get("/productos", obtenerProductos);
-router.post(`/productos`, crearProducto);
-router.put(`/productos/:id`, ActualizarNuevoProducto);
-router.delete(`/productos/:id`, EliminarProductos);
+//autores
+router.get("/autores", obtenerAutores);
+router.post(`/autores`, crearAutor);
+router.put(`/autores/:id_autor`, ActualizarNuevoAutor);
+router.delete(`/autores/:id_autor`, EliminarAutores);
+//libros
+router.get("/libros", obtenerLibros);
 export default router;

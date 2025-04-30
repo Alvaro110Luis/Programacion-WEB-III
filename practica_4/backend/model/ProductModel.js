@@ -1,26 +1,47 @@
 import pool from "../config/db.js";
 
-export const obtenerTodosProductos = async () => {
-  const [array] = await pool.query("SELECT * FROM productos");
+//autores
+export const obtenerTodosAutores = async () => {
+  const [array] = await pool.query("SELECT * FROM autor");
   return array;
 };
 
-export const crearNuevoProducto = async (nombre) => {
+export const crearNuevoAutor = async (
+  nombre,
+  nacionalidad,
+  fecha_nacimiento,
+  biografia
+) => {
   const resultado = await pool.query(
-    "INSERT INTO productos(nombre) VALUES(?)",
-    [nombre]
+    "INSERT INTO autor(nombre,nacionalidad,fecha_nacimiento,biografia) VALUES(?,?,?,?)",
+    [nombre, nacionalidad, fecha_nacimiento, biografia]
   );
   return resultado.insertId;
 };
 
-export const ActualizarProducto = async (id, nombre) => {
-  await pool.query("UPDATE productos SET nombre=? WHERE id=?", [nombre, id]);
+export const ActualizarAutor = async (
+  id_autor,
+  nombre,
+  nacionalidad,
+  fecha_nacimiento,
+  biografia
+) => {
+  await pool.query(
+    "UPDATE autor SET nombre=?, nacionalidad=?, fecha_nacimiento=?, biografia=? WHERE id_autor=?",
+    [nombre, nacionalidad, fecha_nacimiento, biografia, id_autor]
+  );
 };
-export const buscarProducto = async (id) => {
-  const [array] = await pool.query("SELECT * FROM productos WHERE id=?", [id]);
+export const buscarAutor = async (id) => {
+  const [array] = await pool.query("SELECT * FROM autor WHERE id_autor=?", [id]);
   return array[0];
 };
 
-export const EliminarProducto = async (id) => {
-  await pool.query("DELETE FROM productos WHERE id=?", [id]);
+export const EliminarAutor = async (id) => {
+  await pool.query("DELETE FROM autor WHERE id_autor=?", [id]);
 };
+
+//libros
+export const obtenerTodosLibros = async()=>{
+  const [array]=await pool.query("SELECT * FROM libro")
+  return array
+}

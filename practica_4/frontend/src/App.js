@@ -1,41 +1,69 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useCallback, useEffect, useState } from "react";
+/* libreria de boostrap */
 import Table from "react-bootstrap/Table";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
+/* libreria del swetalert */
 import Swal from "sweetalert2";
 
+/* libreria de iconos */
+import { PiBooks } from "react-icons/pi";
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
 
 function App() {
-  const [productos, setProductos] = useState([]);
-  const [formularioAgregar, setAgregarProducto] = useState({
+  /* hooks para consultas */
+  /* autores */
+  const [autores, setAutores] = useState([]);
+
+  const [formularioAgregarAutor, setFormularioAgregarAutor] = useState({
     nombre: "",
+    nacionalidad: "",
+    fecha_nacimiento: "",
+    biografia: "",
   });
 
-  const [formularioEditar, setEditarProducto] = useState({
+  const [formularioEditarAutor, setFormularioEditarAutor] = useState({
     nombre: "",
+    nacionalidad: "",
+    fecha_nacimiento: "",
+    biografia: "",
   });
-  const [productoId, setProductoId] = useState(null);
+  const [autorId, setAutorId] = useState(null);
 
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  /* libros */
+  const [libros, setLibros] = useState([]);
 
-  const [mostrar, setMostrar] = useState(false);
-  const cerrarModal = () => setMostrar(false);
-  const abrirModal = () => setMostrar(true);
+  /* hooks para los modales */
+  const [modalAgregarAutores, setModalAgregarAutores] = useState(false);
+  const cerrarModalAgregarAutores = () => setModalAgregarAutores(false);
+  const abrirModalAgregarAutores = () => setModalAgregarAutores(true);
 
+  const [modalEditarAutores, setModalEditarAutores] = useState(false);
+  const cerrarModalEditarAutores = () => setModalEditarAutores(false);
+  const abrirModalEditarAutores = () => setModalEditarAutores(true);
+
+  const [modalVerLibros, setModalVerLibros] = useState(false);
+  const cerrarModalVerLibros = () => setModalVerLibros(false);
+  const abrirModalVerLibros = (id_autor) => {
+    setAutorId(id_autor);
+    setModalVerLibros(true);
+  };
+
+  /* consulta y actualizacion de datos */
   const fetchProductos = useCallback(async () => {
     try {
-      const respuesta = await fetch("http://localhost:3001/api/productos");
-      const data = await respuesta.json();
-      setProductos(data);
+      const respuestaAut = await fetch("http://localhost:3001/api/autores");
+      const dataAutores = await respuestaAut.json();
+      setAutores(dataAutores);
+      const respuestaLib = await fetch("http://localhost:3001/api/libros");
+      const dataLibros = await respuestaLib.json();
+      setLibros(dataLibros);
     } catch (error) {
       alert("ERROR: " + error);
     }
@@ -45,17 +73,17 @@ function App() {
     fetchProductos();
   }, [fetchProductos]);
 
-  const Agregar = async (e) => {
+  const AgregarAutor = async (e) => {
     e.preventDefault();
-    if (!formularioAgregar.nombre.trim()) {
+    if (!formularioAgregarAutor.nombre.trim()) {
       alert("nombre requerido");
       return;
     }
     try {
-      const respuesta = await fetch("http://localhost:3001/api/productos", {
+      const respuesta = await fetch("http://localhost:3001/api/autores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formularioAgregar }),
+        body: JSON.stringify({ ...formularioAgregarAutor }),
       });
       if (!respuesta.ok) {
         let errorMensaje = "error al cargar";
@@ -67,9 +95,9 @@ function App() {
         }
         throw new Error(errorMensaje);
       }
-      handleClose();
+      cerrarModalAgregarAutores();
       Swal.fire({
-        title: "producto agregado",
+        title: "autor agregado",
         icon: "success",
         draggable: true,
         timer: 2000,
@@ -78,44 +106,49 @@ function App() {
     } catch (error) {
       console.error(error);
       Swal.fire({
-        title: "no se pudo agregar el producto",
+        title: "no se pudo agregar el autor",
         icon: "error",
         draggable: true,
         timer: 2000,
       });
     }
   };
-  const cambiosFormularioAgregar = async (e) => {
-    setAgregarProducto({
-      ...formularioAgregar,
+  const cambiosFormularioAgregarAutor = async (e) => {
+    setFormularioAgregarAutor({
+      ...formularioAgregarAutor,
       [e.target.name]: e.target.value,
     });
   };
 
-  const EditarProductos = (producto) => {
-    setEditarProducto({ nombre: producto.nombre });
-    setProductoId(producto.id);
-    abrirModal();
+  const EditarAutores = (autor) => {
+    setFormularioEditarAutor({
+      nombre: autor.nombre,
+      nacionalidad: autor.nacionalidad,
+      fecha_nacimiento: autor.fecha_nacimiento,
+      biografia: autor.biografia,
+    });
+    setAutorId(autor.id_autor);
+    abrirModalEditarAutores();
   };
   const cambiosFormularioEditar = (e) => {
-    setEditarProducto({
-      ...formularioEditar,
+    setFormularioEditarAutor({
+      ...formularioEditarAutor,
       [e.target.name]: e.target.value,
     });
   };
-  const EditarProducto = async (e) => {
+  const EditarAutor = async (e) => {
     e.preventDefault();
-    if (!formularioEditar.nombre.trim()) {
+    if (!formularioEditarAutor.nombre.trim()) {
       alert("nombre requerido");
       return;
     }
     try {
       const respuesta = await fetch(
-        `http://localhost:3001/api/productos/${productoId}`,
+        `http://localhost:3001/api/autores/${autorId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...formularioEditar }),
+          body: JSON.stringify({ ...formularioEditarAutor }),
         }
       );
       if (!respuesta.ok) {
@@ -128,9 +161,9 @@ function App() {
         }
         throw new Error(errorMensaje);
       }
-      cerrarModal();
+      cerrarModalEditarAutores();
       Swal.fire({
-        title: "producto editado",
+        title: "autor editado",
         icon: "success",
         draggable: true,
         timer: 2000,
@@ -139,7 +172,7 @@ function App() {
     } catch (error) {
       console.error(error);
       Swal.fire({
-        title: "no se pudo editar el producto",
+        title: "no se pudo editar el autor",
         icon: "error",
         draggable: true,
         timer: 2000,
@@ -147,7 +180,7 @@ function App() {
     }
   };
 
-  const EliminarProducto = async (id) => {
+  const EliminarAutor = async (id_autor) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -159,7 +192,7 @@ function App() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await fetch(`http://localhost:3001/api/productos/${id}`, {
+          await fetch(`http://localhost:3001/api/autores/${id_autor}`, {
             method: "DELETE",
           });
           Swal.fire({
@@ -182,7 +215,7 @@ function App() {
   };
   return (
     <div className="contenedor">
-      <Button variant="primary" onClick={handleShow}>
+      <Button variant="primary" onClick={abrirModalAgregarAutores}>
         Crear
       </Button>
       <Table striped bordered hover size="sm">
@@ -190,14 +223,22 @@ function App() {
           <tr>
             <th>id</th>
             <th>nombre</th>
+            <th>nacionalidad</th>
+            <th>fecha de nacimiento</th>
+            <th>biografia</th>
+            <th>opciones</th>
           </tr>
         </thead>
         <tbody>
-          {productos.map((producto) => {
+          {autores.map((autor) => {
             return (
-              <tr key={producto.id}>
-                <td>{producto.id}</td>
-                <td>{producto.nombre}</td>
+              <tr key={autor.id_autor}>
+                <td>{autor.id_autor}</td>
+                <td>{autor.nombre}</td>
+                <td>{autor.nacionalidad}</td>
+                <td>{autor.fecha_nacimiento.split("T")[0]}</td>
+                <td>{autor.biografia}</td>
+
                 <td>
                   <div
                     className="btn-group"
@@ -206,19 +247,27 @@ function App() {
                   >
                     <button
                       type="button"
-                      className="btn btn-secondary"
-                      variant="warning"
+                      className="btn btn-warning"
                       onClick={() => {
-                        EditarProductos(producto);
+                        abrirModalVerLibros(autor.id_autor);
+                      }}
+                    >
+                      <PiBooks />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => {
+                        EditarAutores(autor);
                       }}
                     >
                       <CiEdit />
                     </button>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-danger"
                       onClick={() => {
-                        EliminarProducto(producto.id);
+                        EliminarAutor(autor.id_autor);
                       }}
                     >
                       <MdDeleteForever />
@@ -230,10 +279,11 @@ function App() {
           })}
         </tbody>
       </Table>
-      {/* modla para agregar nuevo producto */}
-      <Modal show={show} onHide={handleClose}>
+
+      {/* modla para agregar nuevo autor */}
+      <Modal show={modalAgregarAutores} onHide={cerrarModalAgregarAutores}>
         <Modal.Header closeButton>
-          <Modal.Title>Crear nuevo Registro</Modal.Title>
+          <Modal.Title>Crear nuevo Autor</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -243,25 +293,50 @@ function App() {
                 type="text"
                 placeholder="ingrese el nombre"
                 name="nombre"
-                onChange={cambiosFormularioAgregar}
-                value={formularioAgregar.nombre}
+                onChange={cambiosFormularioAgregarAutor}
+                value={formularioAgregarAutor.nombre}
+              />
+              <Form.Label>nacionalidad</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="ingrese la nacionalidad"
+                name="nacionalidad"
+                onChange={cambiosFormularioAgregarAutor}
+                value={formularioAgregarAutor.nacionalidad}
+              />
+              <Form.Label>fecha de nacimiento</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="ingrese la fecha de nacimiento"
+                name="fecha_nacimiento"
+                onChange={cambiosFormularioAgregarAutor}
+                value={formularioAgregarAutor.fecha_nacimiento.split("T")[0]}
+              />
+              <Form.Label>biografia</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="ingrese la biografia"
+                name="biografia"
+                onChange={cambiosFormularioAgregarAutor}
+                value={formularioAgregarAutor.biografia}
               />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={cerrarModalAgregarAutores}>
             Cerrar
           </Button>
-          <Button variant="primary" onClick={Agregar}>
+          <Button variant="primary" onClick={AgregarAutor}>
             Guardar
           </Button>
         </Modal.Footer>
       </Modal>
+
       {/* modla para editar producto */}
-      <Modal show={mostrar} onHide={cerrarModal}>
+      <Modal show={modalEditarAutores} onHide={cerrarModalEditarAutores}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar Registro</Modal.Title>
+          <Modal.Title>Editar Autor</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -272,18 +347,70 @@ function App() {
                 placeholder="ingrese el nombre"
                 name="nombre"
                 onChange={cambiosFormularioEditar}
-                value={formularioEditar.nombre}
+                value={formularioEditarAutor.nombre}
+              />
+              <Form.Label>nacionalidad</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="ingrese la nacionalidad"
+                name="nacionalidad"
+                onChange={cambiosFormularioEditar}
+                value={formularioEditarAutor.nacionalidad}
+              />
+              <Form.Label>fecha de nacimiento</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="ingrese la fecha de nacimiento"
+                name="fecha_nacimiento"
+                onChange={cambiosFormularioEditar}
+                value={formularioEditarAutor.fecha_nacimiento.split("T")[0]}
+              />
+              <Form.Label>biografia</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="ingrese la biografia"
+                name="biografia"
+                onChange={cambiosFormularioEditar}
+                value={formularioEditarAutor.biografia}
               />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={cerrarModal}>
+          <Button variant="secondary" onClick={cerrarModalEditarAutores}>
             Cerrar
           </Button>
-          <Button variant="primary" onClick={EditarProducto}>
+          <Button variant="primary" onClick={EditarAutor}>
             Guardar
           </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* modal para ver los libros */}
+      <Modal show={modalVerLibros} onHide={cerrarModalVerLibros}>
+        <Modal.Header closeButton>
+          <Modal.Title>Libros del autor</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ul>
+            {libros.map((libro) => {
+              if (libro.id_autor === autorId) {
+                return (
+                  <li key={libro.id_libro}>
+                    {libro.titulo} ({libro.año_publicacion}) - {libro.genero} :{" "}
+                    {libro.resumen}
+                  </li>
+                );
+              }
+              return null;
+            })}
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cerrarModalVerLibros}>
+            Cerrar
+          </Button>
+          <Button variant="primary">Guardar</Button>
         </Modal.Footer>
       </Modal>
     </div>
