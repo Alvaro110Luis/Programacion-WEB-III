@@ -7,7 +7,7 @@ export const obtenerAutores = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error al obener autores", error: error.message });
+      .json({ message: "Error al oben er autores", error: error.message });
   }
 };
 

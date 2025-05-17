@@ -1,0 +1,9 @@
+{
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "buildCommand": "cd practica_4/backend && npm install",
+    "startCommand": "cd practica_4/backend && npm start"
+  }
+}
